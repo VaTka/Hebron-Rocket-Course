@@ -1,34 +1,52 @@
-const usersDB = require("../database/users");
+const User = require("../database/User.model");
+const {response} = require("express");
 
 module.exports = {
-    getAllUser: (req, res) => {
-        res.json(usersDB)
+    getAllUser: async (req, res) => {
+        const users = await User.find();
+        res.json(users)
     },
-    createUser: (req, res) => {
-        console.log(req.body);
-
-        usersDB.push(req.body);
-        res.json(usersDB);
-    },
-    getUserById: (req, res) => {
-        console.log(req.params);
-        const {userIndex} = req.params;
-        const user = usersDB[userIndex]
-
-        if (!user) {
-            res.status(404).json('not found')
-            return;
+    createUser: async (req, res) => {
+        try {
+            const createdUser = await User.create(req.body)
+            res.status(201).json(createdUser);
+        } catch (e) {
+            res.status(400)
+                .json({
+                    message: e.message
+                })
         }
-        res.json(user)
+    },
+    getUserById: async (req, res) => {
+        try {
+            const {userIndex} = req.params;
+            const user = await User.findById(userIndex);
+            if (!user) {
+                res.status(404).json('not found')
+                return;
+            }
+        } catch (e) {
+            res.status(400)
+                .json({
+                    message: e.message
+                })
+        }
     },
     deleteUser: (req, res) => {
-        const {userIndex} = req.params;
-        const users = usersDB[userIndex];
+        try {
+            const {userIndex} = req.params;
+            const users = User[userIndex];
 
-        if (!users) {
-            res.status(404).json('not found')
-            return;
+            if (!users) {
+                res.status(404).json('not found')
+                return;
+            }
+        } catch (e) {
+            res.status(400)
+                .json({
+                    message: e.message
+                })
         }
-        res.send(users);
+
     }
 }
