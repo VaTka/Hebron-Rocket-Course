@@ -1,5 +1,4 @@
-const User = require("../database/User.model");
-const {response} = require("express");
+const User = require("../database/user.model");
 
 module.exports = {
     getAllUser: async (req, res) => {

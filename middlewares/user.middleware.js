@@ -42,25 +42,33 @@ const checkIsUserExist = async (req, res, next) => {
 
 const checkValidUserGender = async (req, res, next) => {
     try {
-        const {gender} = req.body;
-        const isGendersValueCorrect = await User.findOne({email: gender.toLowerCase().trim()});
-        switch (isGendersValueCorrect) {
-            case 'male':
-                next();
-                break;
-            case 'female':
-                next();
-                break;
-            case 'another':
-                next();
-                break;
-            default:
-                res.status(404)
-                    .json({
-                        message: `No such gender like ${gender}`
-                    })
-                return;
+        const {gender = ""} = req.body;
+        const isGendersValueCorrect = await User.findOne({gender: gender.toLowerCase().trim()});
+        console.log(isGendersValueCorrect);
+        const Genders = ["male", "female", "another"];
+        console.log(Genders)
+        if (!Genders.includes(isGendersValueCorrect)){
+            res.status(404)
+                .json({
+                    message: `No such gender like ${gender}`
+                })
+            return;
         }
+        next();
+
+        // switch (isGendersValueCorrect) {
+        //     case 'male':
+        //         next();
+        //         break;
+        //     case 'female': // indcluds
+        //         next();
+        //         break;
+        //     case 'another':
+        //         next();
+        //         break;
+        //     default:
+        //
+        // }
     } catch (e) {
         res.status(400)
             .json({
