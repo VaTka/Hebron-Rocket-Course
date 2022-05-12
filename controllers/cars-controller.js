@@ -1,34 +1,51 @@
-const carsDB = require("../database/cars");
+const Car = require("../database/Car.model");
 
 module.exports = {
-    getAllCars: (req, res) => {
-        res.json(carsDB)
+    getAllCar: async (req, res) => {
+        const cars = await Car.find();
+        res.json(cars)
     },
-    createUser: (req, res) => {
-        console.log(req.body);
-
-        carsDB.push(req.body);
-        res.json(carsDB);
-    },
-    getCarsById: (req, res) => {
-        console.log(req.params);
-        const {carsIndex} = req.params;
-        const car = carsDB[carsIndex]
-
-        if (!car) {
-            res.status(404).json('not found')
-            return;
+    createCar: async (req, res) => {
+        try {
+            const createdCar = await Car.create(req.body)
+            res.status(201).json(createdCar);
+        } catch (e) {
+            res.status(400)
+                .json({
+                    message: e.message
+                })
         }
-        res.json(car)
     },
-    deleteCars: (req, res) => {
-        const {carsIndex} = req.params;
-        const car = carsDB[carsIndex];
-
-        if (!car) {
-            res.status(404).json('not found')
-            return;
+    getCarById: async (req, res) => {
+        try {
+            const {carIndex} = req.params;
+            const car = await Car.findById(carIndex);
+            if (!car) {
+                res.status(404).json('not found')
+                return;
+            }
+        } catch (e) {
+            res.status(400)
+                .json({
+                    message: e.message
+                })
         }
-        res.send(car);
+    },
+    deleteCar: (req, res) => {
+        try {
+            const {carIndex} = req.params;
+            const cars = Car[carIndex];
+
+            if (!cars) {
+                res.status(404).json('not found')
+                return;
+            }
+        } catch (e) {
+            res.status(400)
+                .json({
+                    message: e.message
+                })
+        }
+
     }
 }

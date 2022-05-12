@@ -42,12 +42,9 @@ const checkIsUserExist = async (req, res, next) => {
 
 const checkValidUserGender = async (req, res, next) => {
     try {
-        const {gender = ""} = req.body;
-        const isGendersValueCorrect = await User.findOne({gender: gender.toLowerCase().trim()});
-        console.log(isGendersValueCorrect);
+        const {gender = "another"} = req.body;
         const Genders = ["male", "female", "another"];
-        console.log(Genders)
-        if (!Genders.includes(isGendersValueCorrect)){
+        if (!Genders.includes(gender)){
             res.status(404)
                 .json({
                     message: `No such gender like ${gender}`
@@ -55,20 +52,6 @@ const checkValidUserGender = async (req, res, next) => {
             return;
         }
         next();
-
-        // switch (isGendersValueCorrect) {
-        //     case 'male':
-        //         next();
-        //         break;
-        //     case 'female': // indcluds
-        //         next();
-        //         break;
-        //     case 'another':
-        //         next();
-        //         break;
-        //     default:
-        //
-        // }
     } catch (e) {
         res.status(400)
             .json({
@@ -81,11 +64,10 @@ const checkAgeLimits = async (req, res, next) => {
     try{
 
         const {age} = req.body;
-        const isAgeLimitPassed = await User.findOne(age);
-        if (18 >= isAgeLimitPassed) {
+        if (18 >= age) {
             res.status(404)
                 .json({
-                    message: ` Still a little boy, come back in ${18-isAgeLimitPassed} years`
+                    message: ` Still a little boy, come back in ${18-age} years`
                 })
             return;
         }
