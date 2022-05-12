@@ -1,9 +1,15 @@
 const express = require('express')
 const {engine} = require('express-handlebars');
-const carsDB = require('./database/cars');
-const userRouter  = require('./routes/user-router');
-const carsRouter  = require('./routes/cars-router');
+const userRouter = require('./routes/user-router');
+const carsRouter = require('./routes/cars-router');
 const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+const {PORT, MONGO_URL} = require('./config/config')
+const e = require("express");
+const ApiError = require('./error/ApiError')
 
 const app = express();
 
@@ -14,21 +20,38 @@ app.engine('.hbs', engine({defaultLayout: false}));
 app.set('view engine', '.hbs');
 app.set('views', './static');
 
-mongoose.connect('mongodb://localhost:27017/hebron_rocket').then(() => {
-    console.log("Good!")
+mongoose.connect(MONGO_URL).then(() => {
+  console.log("Good!")
 })
 
 app.use('/users', userRouter)
 app.use('/cars', carsRouter)
+app.use('*', _notFoundHandler);
+
+app.use(_mainErrorHandler);
+
+function _notFoundHandler(req, res, next){
+  next(new ApiError('Not Found', 404));
+}
+
+function _mainErrorHandler(err, req, res) {
+  console.log(err)
+  res
+    .status(err.status || 500)
+    .json({
+      message: err.message || 'Server Error',
+      status: err.status
+    })
+}
 
 app.get('/', (req, res) => {
-    res.json('Hello Valera');
+  res.json('Hello Valera');
 });
 
 app.get('/page', (req, res) => {
-    res.render('Welcome')
+  res.render('Welcome')
 })
 
-app.listen(5000, () => {
-    console.log('Hellow World!')
+app.listen(PORT, () => {
+  console.log('Hellow World!')
 });

@@ -1,85 +1,78 @@
 const User = require("../database/user.model.js");
+const ApiError = require("../error/ApiError");
 
 const checkIsEmailDuplicate = async (req, res, next) => {
-    try {
-        const {email} = req.body;
-        const isUserPresent = await User.findOne({email: email.toLowerCase().trim()});
-        if (isUserPresent) {
-            res.status(400)
-                .json({
-                    message: `User with ${email} already exist`
-                })
-            return;
-        }
-        next();
-    } catch (e) {
-        res.status(400)
-            .json({
-                message: e.message
-            })
+  try {
+    const {email} = req.body;
+    if (!email) {
+      next(new ApiError('Email is required', 400));
+      return;
     }
+    const isUserPresent = await User.findOne({email: email.toLowerCase().trim()});
+    if (isUserPresent) {
+      next(new ApiError(`Email with ${email} is exist`, 409));
+      return;
+    }
+    next();
+  } catch (e) {
+    next(e)
+  }
 }
 
 const checkIsUserExist = async (req, res, next) => {
-    try {
-        const {id} = req.body;
-        const isUserPresent = await User.findOne({_id: id});
-        if (!isUserPresent) {
-            res.status(404)
-                .json({
-                    message: `User with this Id is not exist`
-                })
-            return;
-        }
-        next();
-    } catch (e) {
-        res.status(400)
-            .json({
-                message: e.message
-            })
+  try {
+    const {userIndex} = req.params;
+    const isUserPresent = await User.findById(userIndex);
+    if (!isUserPresent){
+      next(new ApiError(`User with Id: ${userIndex} is not exist`, 404));
+      return;
     }
+    next();
+  } catch (e) {
+    next(e);
+  }
 }
 
+// eslint-disable-next-line require-await
 const checkValidUserGender = async (req, res, next) => {
-    try {
-        const {gender = "another"} = req.body;
-        const Genders = ["male", "female", "another"];
-        if (!Genders.includes(gender)){
-            res.status(404)
-                .json({
-                    message: `No such gender like ${gender}`
-                })
-            return;
-        }
-        next();
-    } catch (e) {
-        res.status(400)
-            .json({
-                message: e.message
-            })
+  try {
+    const {gender = "another"} = req.body;
+    const Genders = [
+      "male",
+      "female",
+      "another"
+    ];
+    if (!Genders.includes(gender)) {
+      res.status(404)
+        .json({
+          message: `No such gender like ${gender}`
+        })
+      return;
     }
+    next();
+  } catch (e) {
+    res.status(400)
+      .json({
+        message: e.message
+      })
+  }
 }
 
+// eslint-disable-next-line require-await
 const checkAgeLimits = async (req, res, next) => {
-    try{
+  try {
 
-        const {age} = req.body;
-        if (18 >= age) {
-            res.status(404)
-                .json({
-                    message: ` Still a little boy, come back in ${18-age} years`
-                })
-            return;
-        }
-        next();
-    } catch (e) {
-        res.status(400)
-            .json({
-                message: e.message
-            })
+    const {age} = req.body;
+    if (age <= 18) {
+      next(new ApiError(`Still a little boy, come back in ${18 - age} years`, 400));
+      return;
     }
+    next();
+  } catch (e) {
+    next(e);
+  }
 }
 
 module.exports = {
-    checkIsEmailDuplicate, checkIsUserExist, checkValidUserGender, checkAgeLimits
+  checkIsEmailDuplicate, checkIsUserExist, checkValidUserGender, checkAgeLimits
 }

@@ -1,64 +1,49 @@
-const User = require("../database/Car.model.js");
+const Car = require("../database/Car.model.js");
+const ApiError = require("../error/ApiError");
 
 const checkIsVINDuplicate = async (req, res, next) => {
-    try {
-        const {vin} = req.body;
-        const isUserPresent = await User.findOne({vin: vin.trim()});
-        if (isUserPresent) {
-            res.status(400)
-                .json({
-                    message: `Car with ${vin} already exist`
-                })
-            return;
-        }
-        next();
-    } catch (e) {
-        res.status(400)
-            .json({
-                message: e.message
-            })
+  try {
+    const {vin} = req.body;
+    const isUserPresent = await Car.findOne({vin: vin.trim()});
+    if (isUserPresent) {
+      next(new ApiError(`VIN with ${vin} is exist`, 409));
+      return;
     }
+    next();
+  } catch (e) {
+    next(e)
+  }
 }
 
 const checkIsCarExist = async (req, res, next) => {
-    try {
-        const {id} = req.body;
-        const isUserPresent = await User.findOne({_id: id});
-        if (!isUserPresent) {
-            res.status(404)
-                .json({
-                    message: `Car with this Id is not exist`
-                })
-            return;
-        }
-        next();
-    } catch (e) {
-        res.status(400)
-            .json({
-                message: e.message
-            })
+  try {
+    const {carsIndex} = req.params;
+    console.log(req.params)
+    const isCarPresent = await Car.findById(carsIndex);
+    if (!isCarPresent){
+      next(new ApiError(`Car with Id: ${carsIndex} is not exist`, 404));
+      return;
     }
+    next();
+  } catch (e) {
+    next(e);
+  }
 }
 
+// eslint-disable-next-line require-await
 const checkAgeLimits = async (req, res, next) => {
-    try {
-        const {age} = req.body;
-        if (1950 >= age) {
-            res.status(400)
-                .json({
-                    message: `Ohh no, car is too old!`
-                })
-            return;
-        }
-        next();
-    } catch (e) {
-        res.status(400)
-            .json({
-                message: e.message
-            })
+  try {
+    const {age} = req.body;
+    if (age <= 1950) {
+      next(new ApiError(`Ohh no, car is too old!`, 400));
+      return;
     }
+    next();
+  } catch (e) {
+    next(e);
+  }
 }
 
 module.exports = {
-    checkIsVINDuplicate, checkIsCarExist, checkAgeLimits
+  checkIsVINDuplicate, checkIsCarExist, checkAgeLimits
 }

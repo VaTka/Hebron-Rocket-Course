@@ -1,51 +1,52 @@
 const User = require("../database/user.model");
+const ApiError = require("../error/ApiError");
 
 module.exports = {
-    getAllUser: async (req, res) => {
-        const users = await User.find();
-        res.json(users)
-    },
-    createUser: async (req, res) => {
-        try {
-            const createdUser = await User.create(req.body)
-            res.status(201).json(createdUser);
-        } catch (e) {
-            res.status(400)
-                .json({
-                    message: e.message
-                })
-        }
-    },
-    getUserById: async (req, res) => {
-        try {
-            const {userIndex} = req.params;
-            const user = await User.findById(userIndex);
-            if (!user) {
-                res.status(404).json('not found')
-                return;
-            }
-        } catch (e) {
-            res.status(400)
-                .json({
-                    message: e.message
-                })
-        }
-    },
-    deleteUser: (req, res) => {
-        try {
-            const {userIndex} = req.params;
-            const users = User[userIndex];
+  getAllUser: async (req, res, next) => {
+    try {
+      const {limit = 20, page = 1} = req.query
+      const skip = (page - 1) * limit;
 
-            if (!users) {
-                res.status(404).json('not found')
-                return;
-            }
-        } catch (e) {
-            res.status(400)
-                .json({
-                    message: e.message
-                })
-        }
+      const users = await User.find().limit(limit).skip(skip);
+      const count = await User.count({});
 
+      res.json({
+        page,
+        perPage: limit,
+        data: users,
+        count
+      })
+    } catch (e) {
+      next(e);
     }
+  },
+  createUser: async (req, res, next) => {
+    try {
+      const createdUser = await User.create(req.body)
+      res.status(201).json(createdUser);
+    } catch (e) {
+      next(e);
+    }
+  },
+  getUserById: async (req, res, next) => {
+    try {
+      const {userIndex} = req.params;
+      const user = req.user || await User.findById(userIndex);
+      res.json(user);
+    } catch (e) {
+      next(e);
+    }
+  },
+  deleteUser: (req, res, next) => {
+    try {
+      const {userIndex} = req.params;
+      const users = User[userIndex];
+      if (!users) {
+        next(new ApiError('User not Found'), 404)
+        return;
+      }
+    } catch (e) {
+      next(e)
+    }
+  }
 }
