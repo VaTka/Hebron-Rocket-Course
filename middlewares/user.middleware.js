@@ -1,5 +1,6 @@
 const User = require("../database/user.model.js");
 const ApiError = require("../error/ApiError");
+const {userValidator} = require("../validators");
 
 const checkIsEmailDuplicate = async (req, res, next) => {
   try {
@@ -73,6 +74,20 @@ const checkAgeLimits = async (req, res, next) => {
   }
 }
 
+const newUserValidator = (req, res, next) => {
+  try {
+    const { error, value } = userValidator.nexUserJoiSchema.validate(req.body);
+    if (error) {
+      next(new ApiError(error.details[0].message, 400));
+      return;
+    }
+    req.body = value;
+    next();
+  } catch (e) {
+    next(e);
+  }
+}
+
 module.exports = {
-  checkIsEmailDuplicate, checkIsUserExist, checkValidUserGender, checkAgeLimits
+  checkIsEmailDuplicate, checkIsUserExist, checkValidUserGender, checkAgeLimits, newUserValidator
 }

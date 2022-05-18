@@ -1,13 +1,13 @@
 const express = require('express')
 const {engine} = require('express-handlebars');
-const userRouter = require('./routes/user-router');
 const carsRouter = require('./routes/cars-router');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
 dotenv.config();
 
-const {PORT, MONGO_URL} = require('./config/config')
+const {PORT, MONGO_URL} = require('./config/config');
+const {userRouter, reportRouter} = require('./routes');
 const e = require("express");
 const ApiError = require('./error/ApiError')
 

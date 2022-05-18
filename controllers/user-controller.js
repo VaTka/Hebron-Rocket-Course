@@ -1,4 +1,5 @@
 const User = require("../database/user.model");
+const {authService} = require("../services");
 const ApiError = require("../error/ApiError");
 
 module.exports = {
@@ -22,7 +23,10 @@ module.exports = {
   },
   createUser: async (req, res, next) => {
     try {
-      const createdUser = await User.create(req.body)
+      const hashPassword = await authService.hashPassword(req.body.password)
+      console.log(req.body.password);
+      console.log(hashPassword)
+      const createdUser = await User.create({...req.body, password: hashPassword})
       res.status(201).json(createdUser);
     } catch (e) {
       next(e);
