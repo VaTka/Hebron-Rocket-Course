@@ -1,5 +1,6 @@
 const Car = require("../database/Car.model");
 const ApiError = require("../error/ApiError");
+const {carAuthService} = require("../services");
 
 module.exports = {
   getAllCar: async (req, res, next) => {
@@ -23,7 +24,8 @@ module.exports = {
 
   createCar: async (req, res, next) => {
     try {
-      const createdCar = await Car.create(req.body)
+      const hashVin = await carAuthService.hashVin(req.body.vin);
+      const createdCar = await Car.create({...req.body, vin: hashVin})
       res.status(201).json(createdCar);
     } catch (e) {
       next(e);

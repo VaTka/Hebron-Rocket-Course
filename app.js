@@ -1,13 +1,13 @@
 const express = require('express')
 const {engine} = require('express-handlebars');
-const carsRouter = require('./routes/cars-router');
+// const carsRouter = require('./routes/cars-router');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
 dotenv.config();
 
 const {PORT, MONGO_URL} = require('./config/config');
-const {userRouter, reportRouter} = require('./routes');
+const {userRouter, reportRouter, carRouter} = require('./routes');
 const e = require("express");
 const ApiError = require('./error/ApiError')
 
@@ -25,7 +25,7 @@ mongoose.connect(MONGO_URL).then(() => {
 })
 
 app.use('/users', userRouter)
-app.use('/cars', carsRouter)
+app.use('/cars', carRouter)
 app.use('*', _notFoundHandler);
 
 app.use(_mainErrorHandler);

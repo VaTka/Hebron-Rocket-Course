@@ -1,5 +1,6 @@
 const Car = require("../database/Car.model.js");
 const ApiError = require("../error/ApiError");
+const {carValidator} = require("../validators");
 
 const checkIsVINDuplicate = async (req, res, next) => {
   try {
@@ -44,6 +45,20 @@ const checkAgeLimits = async (req, res, next) => {
   }
 }
 
+const newCarValidator = (req, res, next) => {
+  try {
+    const { error, value } = carValidator.nexCarJoiSchema.validate(req.body);
+    if (error) {
+      next(new ApiError(error.details[0].message, 400));
+      return;
+    }
+    req.body = value;
+    next();
+  } catch (e) {
+    next(e);
+  }
+}
+
 module.exports = {
-  checkIsVINDuplicate, checkIsCarExist, checkAgeLimits
+  checkIsVINDuplicate, checkIsCarExist, checkAgeLimits, newCarValidator
 }
