@@ -1,9 +1,7 @@
 const User = require("../database/user.model.js");
 const ApiError = require("../error/ApiError");
 const {userValidator} = require("../validators");
-const {authService} = require("../services");
-const {login} = require("../controllers/auth.controller");
-const {object} = require("joi");
+
 
 const checkIsEmailDuplicate = async (req, res, next) => {
   try {
@@ -37,28 +35,30 @@ const checkIsUserExist = async (req, res, next) => {
   }
 }
 
-// eslint-disable-next-line arrow-body-style
-const getUserDynamically = (paramName = '_id', where = "body", dataBaseField = paramName) => {
-  return async (req, res, next) => {
-    try {
-      const findObject = req[where];
-      if (!findObject || typeof findObject !== "object"){
-        next(new ApiError('Wrong search param in middleware'))
-        return
-      }
-      const param = findObject[paramName];
-      const user = await User.findOne({[dataBaseField]: param});
-      if (!user){
-        next(new ApiError(`User with ${param} is not exist`, 404));
-        return;
-      }
-      req.user = user
-      next();
-    } catch (e) {
-      next(e);
+const getUserDynamically = (paramName = '_id', where = 'body', dataBaseField = paramName) => async (req, res, next) => {
+  try {
+    const findObject = req[where];
+
+    if (!findObject || typeof findObject !== 'object') {
+      next(new ApiError('Wrong search param in middleware'));
+      return;
     }
+
+    const param = findObject[paramName];
+    const user = await User.findOne({[dataBaseField]: param}).select('+password');
+
+    if (!user) {
+      next(new ApiError(`User with ${param} is not exist`, 404));
+      return;
+    }
+
+    req.user = user;
+
+    next();
+  } catch (e) {
+    next(e);
   }
-}
+};
 
 // eslint-disable-next-line require-await
 const checkValidUserGender = async (req, res, next) => {
@@ -99,12 +99,9 @@ const checkAgeLimits = async (req, res, next) => {
     next(e);
   }
 }
-
 const newUserValidator = (req, res, next) => {
   try {
     const { error, value } = userValidator.nexUserJoiSchema.validate(req.body);
-
-    authService.validateToken("ggez", 'access')
 
     if (error) {
       next(new ApiError(error.details[0].message, 400));

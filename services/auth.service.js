@@ -12,9 +12,7 @@ async function comperePasswords(hashPassword, password) {
   }
 }
 
-function hashPassword(password) {
-  return bcrypt.hash(password, 10)
-}
+const hashPassword = password => bcrypt.hash(password, 10);
 
 function generateTokenPair(encodeData) {
   const access_token = jwt.sign(encodeData, ACCESS_TOKEN_SECRET, {expiresIn: '15m'});
@@ -26,17 +24,19 @@ function generateTokenPair(encodeData) {
   }
 }
 
-function validateToken(token, tokenType = tokenTypeEnum.ACCESS) {
+const validateToken = (token, tokenType = tokenTypeEnum.ACCESS) => {
   try {
-    let secretWord = ACCESS_TOKEN_SECRET
+    let secretWord = ACCESS_TOKEN_SECRET;
+
     if (tokenType === tokenTypeEnum.REFRESH) {
-      secretWord = REFRESH_TOKEN_SECRET
+      secretWord = REFRESH_TOKEN_SECRET;
     }
-    return jwt.verify(token, secretWord)
+    console.log(token, secretWord)
+    return jwt.verify(token, secretWord);
   } catch (e) {
-    throw new ApiError(e.message || "Invalid token", 401)
+    throw new ApiError(e.message || 'Invalid token', 401);
   }
-}
+};
 
 module.exports = {
   comperePasswords,

@@ -1,8 +1,12 @@
 const { Router } = require("express");
 
 const {authController} = require("../controllers");
-const {authModdleware, userModdleware} = require("../middlewares");
-const reportRouter = Router();
-reportRouter.post("/login",authModdleware.isLoginDataValid, userModdleware.getUserDynamically('email'), authController.login);
+const {authMiddleware, userMiddleware} = require("../middlewares");
 
-module.exports = reportRouter
+const authRouter = Router();
+
+authRouter.post("/login", authMiddleware.isLoginDataValid, userMiddleware.getUserDynamically('email'), authController.login);
+
+authRouter.post('/logout', authMiddleware.checkAccessToken, authController.logout)
+
+module.exports = authRouter

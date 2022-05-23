@@ -1,11 +1,28 @@
 const {authService} = require('../services')
 const { authValidator} = require('../validators')
+const OAuth = require('../database/OAuth.model')
 const ApiError = require('../error/ApiError')
 
-function checkAccessToken(req, res, next) {
+async function checkAccessToken(req, res, next) {
   try {
-    const token = 'sgrwrhrgsjgmsrlTOKEN';
-    authService.validateToken(token)
+    const access_token = req.get("Authorization");
+
+    if (!access_token) {
+      next(new ApiError("No Token", 401));
+      return;
+    }
+
+    authService.validateToken(access_token)
+
+    const tokenData = await OAuth.findOne({access_token).populate('user_id')
+
+    if (!tokenData || !tokenData.user_id) {
+      next(new ApiError('Not Valid Token', 401));
+      return;
+    }
+
+    req.authUser = tokenData.user_id
+
     next();
   }catch (e) {
     next(e)
@@ -30,6 +47,7 @@ function isLoginDataValid(req, res, next) {
       return;
     }
     req.body = value;
+    next()
   }catch (e){
     next(e)
   }
