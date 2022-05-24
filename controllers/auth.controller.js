@@ -1,10 +1,12 @@
-const {authService} = require('../services')
+const {authService, emailService} = require('../services')
 const OAuth = require('../database/OAuth.model')
 
 module.exports = {
   login: async (req, res, next) => {
     try {
       const {user, body: {password}} = req
+
+      await emailService.sendMail()
 
       await authService.comperePasswords(user.password, password);
 

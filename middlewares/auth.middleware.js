@@ -14,7 +14,7 @@ async function checkAccessToken(req, res, next) {
 
     authService.validateToken(access_token)
 
-    const tokenData = await OAuth.findOne({access_token).populate('user_id')
+    const tokenData = await OAuth.findOne({access_token}).populate('user_id')
 
     if (!tokenData || !tokenData.user_id) {
       next(new ApiError('Not Valid Token', 401));
