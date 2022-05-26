@@ -1,4 +1,5 @@
 const {authService, emailService} = require('../services')
+const {emailActionsEnum} = require('../constants')
 const OAuth = require('../database/OAuth.model')
 
 module.exports = {
@@ -6,7 +7,7 @@ module.exports = {
     try {
       const {user, body: {password}} = req
 
-      await emailService.sendMail()
+      await emailService.sendMail('mrbananastv@gmail.com', emailActionsEnum.WELCOME)
 
       await authService.comperePasswords(user.password, password);
 

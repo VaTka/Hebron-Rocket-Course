@@ -7,4 +7,6 @@ module.exports = {
 
   SYSTEM_MAIL: process.env.SYSTEM_MAIL || '',
   SYSTEM_MAIL_PASSWORD: process.env.SYSTEM_MAIL_PASSWORD || '',
+
+  FRONTEND_URL: 'https://google.com'
 }
