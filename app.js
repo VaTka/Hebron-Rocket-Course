@@ -8,7 +8,7 @@ dotenv.config();
 const {PORT, MONGO_URL} = require('./config/config');
 const {userRouter, carRouter, authRouter} = require('./routes');
 const e = require("express");
-const ApiError = require('./error/ApiError')
+const ApiError = require('./error/ApiError');
 
 const app = express();
 
