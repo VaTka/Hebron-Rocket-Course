@@ -49,7 +49,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/page', (req, res) => {
-  res.render('Welcome')
+  res.render('Welcome');
 })
 
 app.listen(PORT, () => {
