@@ -25,7 +25,7 @@ mongoose.connect(MONGO_URL).then(() => {
 
 app.use('/auth', authRouter)
 app.use('/users', userRouter)
-app.use('/cars', carRouter)
+app.use('/cars', carRouter);
 app.use('*', _notFoundHandler);
 
 app.use(_mainErrorHandler);
